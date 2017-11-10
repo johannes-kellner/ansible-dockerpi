@@ -1,0 +1,42 @@
+---
+- hosts: dockerpi0.fritz.box
+  remote_user: pi
+  become: yes
+  become_method: sudo
+  tasks:
+  - name: install "apt-transport-https" package
+    apt:
+      name: apt-transport-https
+      update_cache: yes
+      cache_valid_time: 3600
+  - name: install "ca-certificates" package
+    apt:
+      name: ca-certificates
+  - name: install "curl" package
+    apt:
+      name: curl
+  - name: install "gnupg2" package
+    apt:
+      name: gnupg2
+  - name: install "software-properties-common" package
+    apt:
+      name: software-properties-common
+      allow_unauthenticated: yes
+  - name: Add Docker signing key
+    apt_key:
+      url: https://download.docker.com/linux/raspbian/gpg
+      state: present
+  - name: Add Docker software repository
+    apt_repository:
+      repo: deb [arch=armhf] https://download.docker.com/linux/raspbian jessie stable
+      state: present
+      filename: 'docker'
+      update_cache: yes
+  - name: Update repositories cache and install "docker-ce" package
+    apt:
+      name: docker-ce
+  - name: Add pi user to docker group
+    user:
+      name: pi
+      groups: docker
+      append: yes
